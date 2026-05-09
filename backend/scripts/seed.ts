@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-const STRAPI_URL = 'http://localhost:1337'
+const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337'
 const TOKEN = process.env.STRAPI_TOKEN
 if (!TOKEN) {
   console.error('Manque STRAPI_TOKEN. Usage : STRAPI_TOKEN=xxx npx tsx scripts/seed.ts')
