@@ -146,7 +146,7 @@ useSeoMeta({
             Télécharger le GPX
           </a>
         </div>
-        <div class="rounded-2xl overflow-hidden">
+        <div class="relative isolate z-0 rounded-2xl overflow-hidden">
           <ClientOnly>
             <BaladeMap :chemins="balade.chemins" :difficulte="balade.difficulte" />
             <template #fallback>
