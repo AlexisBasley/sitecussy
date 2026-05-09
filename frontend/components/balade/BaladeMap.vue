@@ -111,11 +111,28 @@ const center = computed<[number, number]>(() => {
       :use-global-leaflet="false"
       style="height: 100%; width: 100%"
     >
+      <LControlLayers position="topright" />
+
+      <LTileLayer
+        url="https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png"
+        attribution='&copy; <a href="https://www.ign.fr/">IGN</a>'
+        layer-type="base"
+        name="IGN Plan"
+        :max-zoom="18"
+      />
+      <LTileLayer
+        url="https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg"
+        attribution='&copy; <a href="https://www.ign.fr/">IGN</a>'
+        layer-type="base"
+        name="IGN Photos aériennes"
+        :max-zoom="19"
+      />
       <LTileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         layer-type="base"
         name="OpenStreetMap"
+        visible
       />
 
       <template v-for="trace in traces" :key="trace.chemin.id">
