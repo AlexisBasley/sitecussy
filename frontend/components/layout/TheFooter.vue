@@ -1,5 +1,12 @@
 <script setup lang="ts">
 const year = new Date().getFullYear();
+
+const navLinks = [
+  { to: '/balades', label: 'Balades' },
+  { to: '/chemins', label: 'Chemins' },
+  { to: '/actualites', label: 'Actualités' },
+  { to: '/a-propos', label: 'À propos' },
+];
 </script>
 
 <template>
@@ -7,7 +14,7 @@ const year = new Date().getFullYear();
     <div class="container-page py-14 grid gap-10 md:grid-cols-3">
       <!-- À propos -->
       <div>
-        <NuxtLink to="/" class="inline-block !text-cream no-underline mb-4">
+        <NuxtLink to="/" class="inline-block mb-4">
           <img
             src="/logo-cussy.png"
             alt="Cussy-en-Morvan"
@@ -22,26 +29,11 @@ const year = new Date().getFullYear();
 
       <!-- Navigation -->
       <div>
-        <h4 class="!text-cream mb-4 text-sm font-semibold uppercase tracking-wider">Découvrir</h4>
+        <h4 class="text-cream mb-4 text-sm font-semibold uppercase tracking-wider">Découvrir</h4>
         <ul class="space-y-2 text-sm">
-          <li>
-            <NuxtLink to="/balades" class="!text-cream/80 hover:!text-cream no-underline">
-              Balades
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink to="/chemins" class="!text-cream/80 hover:!text-cream no-underline">
-              Chemins
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink to="/actualites" class="!text-cream/80 hover:!text-cream no-underline">
-              Actualités
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink to="/a-propos" class="!text-cream/80 hover:!text-cream no-underline">
-              À propos
+          <li v-for="l in navLinks" :key="l.to">
+            <NuxtLink :to="l.to" class="text-cream/80 hover:text-cream transition-colors">
+              {{ l.label }}
             </NuxtLink>
           </li>
         </ul>
@@ -49,20 +41,20 @@ const year = new Date().getFullYear();
 
       <!-- Contact / partenaires -->
       <div>
-        <h4 class="!text-cream mb-4 text-sm font-semibold uppercase tracking-wider">Mairie</h4>
+        <h4 class="text-cream mb-4 text-sm font-semibold uppercase tracking-wider">Mairie</h4>
         <address class="not-italic text-sm leading-relaxed mb-6">
           Mairie de Cussy-en-Morvan<br />
           71550 Cussy-en-Morvan<br />
           Bourgogne — France
         </address>
-        <h4 class="!text-cream mb-3 text-sm font-semibold uppercase tracking-wider">
+        <h4 class="text-cream mb-3 text-sm font-semibold uppercase tracking-wider">
           En partenariat
         </h4>
         <a
           href="https://www.parcdumorvan.org/"
           target="_blank"
           rel="noopener noreferrer"
-          class="!text-cream/80 hover:!text-cream text-sm underline-offset-2"
+          class="text-cream/80 hover:text-cream text-sm transition-colors"
         >
           Parc naturel régional du Morvan
         </a>

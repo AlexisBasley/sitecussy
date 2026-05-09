@@ -21,11 +21,7 @@ const links = [
 <template>
   <header class="sticky top-0 z-40 bg-foret-dark/95 backdrop-blur text-white shadow-sm">
     <div class="container-page py-3 md:py-4 flex items-center justify-between gap-4">
-      <NuxtLink
-        to="/"
-        class="!text-white no-underline shrink-0"
-        aria-label="Cussy-en-Morvan, accueil"
-      >
+      <NuxtLink to="/" class="text-white shrink-0" aria-label="Cussy-en-Morvan, accueil">
         <img
           src="/logo-cussy.png"
           alt="Cussy-en-Morvan"
@@ -39,7 +35,7 @@ const links = [
           <li v-for="l in links" :key="l.to">
             <NuxtLink
               :to="l.to"
-              class="!text-white no-underline px-3 py-2 rounded-full transition-colors hover:bg-white/10"
+              class="text-white px-3 py-2 rounded-full transition-colors hover:bg-white/10"
               active-class="bg-white/15 font-medium"
             >
               {{ l.label }}
@@ -54,7 +50,7 @@ const links = [
         class="md:hidden p-2 -mr-2 rounded text-white"
         :aria-expanded="open"
         aria-controls="mobile-menu"
-        aria-label="Ouvrir le menu"
+        :aria-label="open ? 'Fermer le menu' : 'Ouvrir le menu'"
         @click="open = !open"
       >
         <svg
@@ -96,7 +92,7 @@ const links = [
           <li v-for="l in links" :key="l.to">
             <NuxtLink
               :to="l.to"
-              class="!text-white no-underline block py-3 text-base"
+              class="text-white block py-3 text-base"
               active-class="font-semibold text-foret-light"
             >
               {{ l.label }}

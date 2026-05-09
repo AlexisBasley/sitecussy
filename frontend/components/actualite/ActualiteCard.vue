@@ -39,12 +39,12 @@ const dateFmt = computed(() =>
         </span>
         <time class="text-stone-500">{{ dateFmt }}</time>
       </div>
-      <h3 class="!text-foret-dark mb-2">{{ actualite.titre }}</h3>
+      <h3 class="text-foret-dark mb-2">{{ actualite.titre }}</h3>
       <div class="prose-strapi text-sm text-stone-700" v-html="actualite.contenu" />
       <NuxtLink
         v-if="actualite.balade?.slug"
         :to="`/balades/${actualite.balade.slug}`"
-        class="text-sm mt-2 inline-block"
+        class="text-sm mt-2 inline-block text-foret-dark hover:text-foret-light underline-offset-4 hover:underline"
       >
         Voir la balade concernée →
       </NuxtLink>
