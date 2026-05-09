@@ -13,6 +13,7 @@ watch(
 const links = [
   { to: '/balades', label: 'Balades' },
   { to: '/chemins', label: 'Chemins' },
+  { to: '/patrimoine', label: 'Patrimoine' },
   { to: '/actualites', label: 'Actualités' },
   { to: '/a-propos', label: 'À propos' },
 ];
