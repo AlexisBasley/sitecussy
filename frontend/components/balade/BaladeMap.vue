@@ -37,7 +37,17 @@ interface CheminTrace {
   data: GpxData;
 }
 
+interface Poi {
+  id: number;
+  name: { fr: string | null };
+  description: { fr: string | null };
+  geometry: { coordinates: [number, number, number?] };
+  type_label: { fr: string | null };
+  type_pictogram: string | null;
+}
+
 const traces = ref<CheminTrace[]>([]);
+const pois = ref<Poi[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -51,12 +61,29 @@ onMounted(async () => {
       })),
     );
     traces.value = results.filter((r) => r.data.points.length > 0);
+    await loadPois();
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Erreur de chargement des traces';
   } finally {
     loading.value = false;
   }
 });
+
+// Charge les POIs Geotrek dans la bbox élargie (~500m de marge)
+async function loadPois() {
+  if (!globalBounds.value) return;
+  const [[minLat, minLng], [maxLat, maxLng]] = globalBounds.value;
+  const margin = 0.005; // ~500m
+  const bbox = [minLng - margin, minLat - margin, maxLng + margin, maxLat + margin].join(',');
+  try {
+    const data = await $fetch<{ results: Poi[] }>('/api/geotrek/pois', {
+      query: { bbox, page_size: 200 },
+    });
+    pois.value = data.results;
+  } catch {
+    // Silencieux : les POIs sont un bonus, pas un bloquant
+  }
+}
 
 // Calcule les bounds globaux pour cadrer la carte sur toutes les traces
 const globalBounds = computed<[[number, number], [number, number]] | null>(() => {
@@ -141,6 +168,33 @@ const center = computed<[number, number]>(() => {
           <LTooltip>Départ — {{ trace.chemin.nom }}</LTooltip>
         </LMarker>
       </template>
+
+      <LMarker
+        v-for="poi in pois"
+        :key="`poi-${poi.id}`"
+        :lat-lng="[poi.geometry.coordinates[1], poi.geometry.coordinates[0]]"
+      >
+        <LIcon
+          v-if="poi.type_pictogram"
+          :icon-url="poi.type_pictogram"
+          :icon-size="[28, 28]"
+          :icon-anchor="[14, 14]"
+          class-name="poi-pictogram"
+        />
+        <LPopup>
+          <div class="text-sm max-w-xs">
+            <div class="text-xs uppercase tracking-wide text-stone-500">
+              {{ poi.type_label.fr }}
+            </div>
+            <div class="font-semibold text-ink mt-0.5">{{ poi.name.fr }}</div>
+            <div
+              v-if="poi.description.fr"
+              class="mt-1 text-stone-700 line-clamp-4"
+              v-html="poi.description.fr"
+            />
+          </div>
+        </LPopup>
+      </LMarker>
     </LMap>
   </div>
 </template>
