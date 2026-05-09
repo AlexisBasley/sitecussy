@@ -1,0 +1,63 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chemins",
+  "info": {
+    "singularName": "chemin",
+    "pluralName": "chemins",
+    "displayName": "Chemin",
+    "description": "Tronçon VTT avec trace GPX"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nom": {
+      "type": "string",
+      "required": true
+    },
+    "description_courte": {
+      "type": "text",
+      "required": true
+    },
+    "fichier_gpx": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["files"]
+    },
+    "distance_km": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "denivele_m": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "type_surface": {
+      "type": "enumeration",
+      "enum": ["foret", "piste", "route"],
+      "required": true
+    },
+    "statut": {
+      "type": "enumeration",
+      "enum": ["ouvert", "deconseille", "ferme"],
+      "default": "ouvert",
+      "required": true
+    },
+    "photos": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "balades": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::balade.balade",
+      "mappedBy": "chemins"
+    }
+  }
+}

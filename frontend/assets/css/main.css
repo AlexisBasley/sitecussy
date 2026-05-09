@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-900 antialiased;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl font-bold text-foret-dark;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl font-semibold text-foret-dark;
+  }
+  h3 {
+    @apply text-xl font-semibold text-foret;
+  }
+  a {
+    @apply text-foret hover:text-foret-dark underline-offset-2;
+  }
+  /* Rich text rendu depuis Strapi */
+  .prose-strapi p {
+    @apply mb-4 leading-relaxed;
+  }
+  .prose-strapi ul {
+    @apply list-disc ml-6 mb-4;
+  }
+  .prose-strapi ol {
+    @apply list-decimal ml-6 mb-4;
+  }
+  .prose-strapi a {
+    @apply underline;
+  }
+}
+
+/* Fix marqueurs Leaflet manquants en build (icônes par défaut) */
+.leaflet-default-icon-path {
+  background-image: url('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png');
+}

@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "actualites",
+  "info": {
+    "singularName": "actualite",
+    "pluralName": "actualites",
+    "displayName": "Actualité",
+    "description": "Actualité, info conditions ou nouveauté"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "titre": {
+      "type": "string",
+      "required": true
+    },
+    "contenu": {
+      "type": "richtext",
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "categorie": {
+      "type": "enumeration",
+      "enum": ["info", "conditions", "nouveaute"],
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "balade": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::balade.balade"
+    }
+  }
+}
