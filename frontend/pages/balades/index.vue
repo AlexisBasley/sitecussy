@@ -4,13 +4,12 @@ import type { Balade, Difficulte } from '~/types/balade';
 const route = useRoute();
 const router = useRouter();
 const { findMany } = useStrapi();
+const { label, all: difficultes } = useDifficulte();
 
 type Filtre = Difficulte | 'tous';
 const options: { value: Filtre; label: string }[] = [
   { value: 'tous', label: 'Toutes' },
-  { value: 'famille', label: 'Famille' },
-  { value: 'intermediaire', label: 'Intermédiaire' },
-  { value: 'expert', label: 'Expert' },
+  ...difficultes.map((d) => ({ value: d, label: label(d) })),
 ];
 
 const initial = (route.query.difficulte as Filtre) || 'tous';

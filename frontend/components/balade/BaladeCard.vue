@@ -3,16 +3,11 @@ import type { Balade } from '~/types/balade';
 
 defineProps<{ balade: Balade }>();
 const { mediaUrl } = useStrapi();
-
-const difficulteLabel: Record<Balade['difficulte'], { label: string; cls: string }> = {
-  famille: { label: 'Famille', cls: 'bg-foret-light/20 text-foret-dark' },
-  intermediaire: { label: 'Intermédiaire', cls: 'bg-morvan-light/30 text-morvan' },
-  expert: { label: 'Expert', cls: 'bg-ink/10 text-ink' },
-};
+const { label, badgeOverlay } = useDifficulte();
 </script>
 
 <template>
-  <NuxtLink :to="`/balades/${balade.slug}`" class="group block no-underline !text-ink">
+  <NuxtLink :to="`/balades/${balade.slug}`" class="group block text-ink">
     <div class="relative overflow-hidden rounded-2xl aspect-[4/3] bg-cream-dark">
       <img
         v-if="balade.photo_mise_en_avant"
@@ -28,10 +23,10 @@ const difficulteLabel: Record<Balade['difficulte'], { label: string; cls: string
         Pas de photo
       </div>
       <span
-        class="absolute top-3 left-3 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur bg-cream/85"
-        :class="difficulteLabel[balade.difficulte].cls"
+        class="absolute top-3 left-3 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur"
+        :class="badgeOverlay(balade.difficulte)"
       >
-        {{ difficulteLabel[balade.difficulte].label }}
+        {{ label(balade.difficulte) }}
       </span>
     </div>
     <div class="pt-4">

@@ -22,11 +22,7 @@ if (!balade.value) {
 
 const aGpx = computed(() => (balade.value?.chemins ?? []).some((c) => c.fichier_gpx?.url));
 
-const difficulteLabel: Record<Balade['difficulte'], { label: string; cls: string }> = {
-  famille: { label: 'Famille', cls: 'bg-green-100 text-green-800 border-green-300' },
-  intermediaire: { label: 'Intermédiaire', cls: 'bg-amber-100 text-amber-800 border-amber-300' },
-  expert: { label: 'Expert', cls: 'bg-red-100 text-red-800 border-red-300' },
-};
+const { label: difficulteLabel, badge: difficulteBadge } = useDifficulte();
 
 useHead({
   title: () => `${balade.value?.titre ?? 'Balade'} — VTT Cussy-en-Morvan`,
@@ -54,9 +50,9 @@ useHead({
         <div class="flex flex-wrap gap-2 text-sm">
           <span
             class="inline-flex items-center px-3 py-1 rounded-full font-medium border"
-            :class="difficulteLabel[balade.difficulte].cls"
+            :class="difficulteBadge(balade.difficulte)"
           >
-            {{ difficulteLabel[balade.difficulte].label }}
+            {{ difficulteLabel(balade.difficulte) }}
           </span>
           <span class="inline-flex items-center px-3 py-1 rounded-full bg-stone-100 text-stone-700">
             ⏱ {{ balade.duree_estimee }}
