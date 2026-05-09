@@ -26,7 +26,11 @@ const links = [
         class="!text-white no-underline shrink-0"
         aria-label="Cussy-en-Morvan, accueil"
       >
-        <img src="/logo-cussy.jpg" alt="Cussy-en-Morvan" class="h-12 md:h-16 w-auto rounded" />
+        <img
+          src="/logo-cussy.png"
+          alt="Cussy-en-Morvan"
+          class="h-10 md:h-14 w-28 md:w-36 object-cover object-left bg-cream rounded-lg"
+        />
       </NuxtLink>
 
       <!-- Nav desktop -->

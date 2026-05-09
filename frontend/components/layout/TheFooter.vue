@@ -8,7 +8,11 @@ const year = new Date().getFullYear();
       <!-- À propos -->
       <div>
         <NuxtLink to="/" class="inline-block !text-cream no-underline mb-4">
-          <img src="/logo-cussy.jpg" alt="Cussy-en-Morvan" class="h-14 w-auto rounded" />
+          <img
+            src="/logo-cussy.png"
+            alt="Cussy-en-Morvan"
+            class="h-12 w-32 object-cover object-left bg-cream rounded-lg"
+          />
         </NuxtLink>
         <p class="text-sm leading-relaxed max-w-xs">
           Site informatif des balades VTT au départ de Cussy-en-Morvan, au cœur du Parc naturel
