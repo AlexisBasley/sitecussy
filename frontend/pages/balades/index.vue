@@ -1,9 +1,24 @@
 <script setup lang="ts">
 import type { Balade, Difficulte } from '~/types/balade';
 
+const route = useRoute();
+const router = useRouter();
 const { findMany } = useStrapi();
 
-const filtre = ref<Difficulte | 'tous'>('tous');
+type Filtre = Difficulte | 'tous';
+const options: { value: Filtre; label: string }[] = [
+  { value: 'tous', label: 'Toutes' },
+  { value: 'famille', label: 'Famille' },
+  { value: 'intermediaire', label: 'Intermédiaire' },
+  { value: 'expert', label: 'Expert' },
+];
+
+const initial = (route.query.difficulte as Filtre) || 'tous';
+const filtre = ref<Filtre>(options.some((o) => o.value === initial) ? initial : 'tous');
+
+watch(filtre, (v) => {
+  router.replace({ query: v === 'tous' ? {} : { difficulte: v } });
+});
 
 const { data: res } = await useAsyncData(
   'balades-list',
@@ -18,40 +33,44 @@ const { data: res } = await useAsyncData(
 );
 
 const balades = computed(() => res.value?.data ?? []);
+
+useSeoMeta({
+  title: 'Toutes les balades VTT — Cussy-en-Morvan',
+  description:
+    'Explorez les balades VTT autour de Cussy-en-Morvan : famille, intermédiaire ou expert. Trace GPX téléchargeable.',
+});
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto px-4 py-8">
-    <h1 class="mb-6">Toutes les balades</h1>
+  <div class="container-page section">
+    <div class="max-w-2xl mb-10">
+      <p class="uppercase tracking-[0.2em] text-xs text-foret mb-3">Itinéraires</p>
+      <h1 class="mb-4">Toutes les balades</h1>
+      <p class="text-stone-600 text-lg">
+        Filtrez par niveau pour trouver le parcours qui vous correspond.
+      </p>
+    </div>
 
-    <div class="flex flex-wrap gap-2 mb-6">
+    <div class="flex flex-wrap gap-2 mb-10">
       <button
-        v-for="opt in ['tous', 'famille', 'intermediaire', 'expert'] as const"
-        :key="opt"
+        v-for="opt in options"
+        :key="opt.value"
         type="button"
-        class="px-3 py-1.5 rounded-full text-sm border transition"
+        class="px-4 py-2 rounded-full text-sm border transition-colors"
         :class="
-          filtre === opt
-            ? 'bg-foret text-white border-foret'
-            : 'bg-white text-stone-700 border-stone-300 hover:border-foret'
+          filtre === opt.value
+            ? 'bg-ink text-cream border-ink'
+            : 'bg-cream text-ink border-ink/15 hover:border-foret hover:text-foret'
         "
-        @click="filtre = opt"
+        @click="filtre = opt.value"
       >
-        {{
-          opt === 'tous'
-            ? 'Toutes'
-            : opt === 'famille'
-              ? 'Famille'
-              : opt === 'intermediaire'
-                ? 'Intermédiaire'
-                : 'Expert'
-        }}
+        {{ opt.label }}
       </button>
     </div>
 
     <p v-if="!balades.length" class="text-stone-600">Aucune balade pour ce filtre.</p>
 
-    <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
       <BaladeCard v-for="b in balades" :key="b.id" :balade="b" />
     </div>
   </div>
