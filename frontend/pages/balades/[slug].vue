@@ -33,19 +33,20 @@ useHead({
 
 <template>
   <article v-if="balade">
-    <!-- Photo mise en avant pleine largeur -->
-    <div class="w-full aspect-[3/1] bg-stone-200 overflow-hidden">
-      <img
-        v-if="balade.photo_mise_en_avant"
-        :src="mediaUrl(balade.photo_mise_en_avant)"
-        :alt="balade.photo_mise_en_avant.alternativeText || balade.titre"
-        class="w-full h-full object-cover"
-      />
-    </div>
-
     <div class="max-w-4xl mx-auto px-4 py-8">
       <NuxtLink to="/balades" class="text-sm">← Retour aux balades</NuxtLink>
 
+      <!-- Photo mise en avant -->
+      <div
+        v-if="balade.photo_mise_en_avant"
+        class="w-full aspect-[5/2] bg-stone-200 overflow-hidden rounded-lg mt-4"
+      >
+        <img
+          :src="mediaUrl(balade.photo_mise_en_avant)"
+          :alt="balade.photo_mise_en_avant.alternativeText || balade.titre"
+          class="w-full h-full object-cover"
+        />
+      </div>
       <header class="mt-4 mb-6">
         <h1 class="mb-3">{{ balade.titre }}</h1>
         <div class="flex flex-wrap gap-2 text-sm">
