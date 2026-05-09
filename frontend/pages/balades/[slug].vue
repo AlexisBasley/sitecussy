@@ -20,6 +20,8 @@ if (!balade.value) {
   throw createError({ statusCode: 404, statusMessage: 'Balade introuvable' });
 }
 
+const aGpx = computed(() => (balade.value?.chemins ?? []).some((c) => c.fichier_gpx?.url));
+
 const difficulteLabel: Record<Balade['difficulte'], { label: string; cls: string }> = {
   famille: { label: 'Famille', cls: 'bg-green-100 text-green-800 border-green-300' },
   intermediaire: { label: 'Intermédiaire', cls: 'bg-amber-100 text-amber-800 border-amber-300' },
@@ -70,7 +72,31 @@ useHead({
 
       <!-- Carte -->
       <section v-if="balade.chemins?.length" class="mb-8">
-        <h2 class="mb-4">Tracé</h2>
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <h2 class="!mb-0">Tracé</h2>
+          <a
+            v-if="aGpx"
+            :href="`/api/balades/${balade.slug}/gpx`"
+            :download="`${balade.slug}.gpx`"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-foret text-white text-sm font-medium hover:bg-foret-dark transition no-underline"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"
+              />
+            </svg>
+            Télécharger le GPX
+          </a>
+        </div>
         <ClientOnly>
           <BaladeMap :chemins="balade.chemins" :difficulte="balade.difficulte" />
           <template #fallback>
