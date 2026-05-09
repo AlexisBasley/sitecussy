@@ -123,7 +123,7 @@ useSeoMeta({
           <NuxtLink to="/balades" class="btn-primary">Voir les balades</NuxtLink>
           <NuxtLink
             to="/chemins"
-            class="btn-secondary !border-cream/40 !text-cream hover:!bg-cream/10"
+            class="btn !bg-transparent !text-cream border border-cream/60 hover:!bg-cream hover:!text-ink"
           >
             État des chemins
           </NuxtLink>
@@ -249,7 +249,7 @@ useSeoMeta({
           <NuxtLink to="/balades" class="btn-primary">Toutes les balades</NuxtLink>
           <NuxtLink
             to="/chemins"
-            class="btn-secondary !border-cream/40 !text-cream hover:!bg-cream/10"
+            class="btn !bg-transparent !text-cream border border-cream/60 hover:!bg-cream hover:!text-ink"
           >
             Voir l'état des chemins
           </NuxtLink>
