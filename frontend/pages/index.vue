@@ -1,87 +1,61 @@
 <script setup lang="ts">
 import type { Actualite } from '~/types/actualite';
-import type { Balade } from '~/types/balade';
+import type { Balade, Difficulte } from '~/types/balade';
 
-const { findMany } = useStrapi();
+const { findMany, mediaUrl } = useStrapi();
+const { description: difficulteDesc, label: difficulteLabel } = useDifficulte();
 
-// 3 dernières actualités publiées
-const { data: actuRes } = await useAsyncData('home-actus', () =>
-  findMany<Actualite>('actualites', {
-    populate: ['image', 'balade'],
-    sort: ['date:desc'],
-    pagination: { pageSize: 3 },
-  }),
-);
-
-// Balades par niveau (1 vitrine par niveau pour la section "Choisir")
-const { data: famillesRes } = await useAsyncData('home-familles', () =>
-  findMany<Balade>('balades', {
-    populate: ['photo_mise_en_avant'],
-    filters: { difficulte: { $eq: 'famille' } },
-    sort: ['publishedAt:desc'],
-    pagination: { pageSize: 1 },
-  }),
-);
-const { data: interRes } = await useAsyncData('home-inter', () =>
-  findMany<Balade>('balades', {
-    populate: ['photo_mise_en_avant'],
-    filters: { difficulte: { $eq: 'intermediaire' } },
-    sort: ['publishedAt:desc'],
-    pagination: { pageSize: 1 },
-  }),
-);
-const { data: expertRes } = await useAsyncData('home-expert', () =>
-  findMany<Balade>('balades', {
-    populate: ['photo_mise_en_avant'],
-    filters: { difficulte: { $eq: 'expert' } },
-    sort: ['publishedAt:desc'],
-    pagination: { pageSize: 1 },
-  }),
-);
-
-// Stats : compter le total balades + chemins
-const { data: statsRes } = await useAsyncData('home-stats', async () => {
-  const [balades, chemins] = await Promise.all([
-    findMany<Balade>('balades', { pagination: { pageSize: 1 } }),
+// 1 seule passe : Promise.all pour paralléliser actus + balades + count chemins.
+const { data: home } = await useAsyncData('home', async () => {
+  const [actus, balades, chemins] = await Promise.all([
+    findMany<Actualite>('actualites', {
+      populate: ['image', 'balade'],
+      sort: ['date:desc'],
+      pagination: { pageSize: 3 },
+    }),
+    findMany<Balade>('balades', {
+      populate: ['photo_mise_en_avant'],
+      sort: ['publishedAt:desc'],
+      pagination: { pageSize: 50 },
+    }),
     findMany<{ id: number }>('chemins', { pagination: { pageSize: 1 } }),
   ]);
   return {
-    balades: balades.meta?.pagination?.total ?? 0,
-    chemins: chemins.meta?.pagination?.total ?? 0,
+    actualites: actus.data ?? [],
+    balades: balades.data ?? [],
+    totalBalades: balades.meta?.pagination?.total ?? 0,
+    totalChemins: chemins.meta?.pagination?.total ?? 0,
   };
 });
 
-const actualites = computed(() => actuRes.value?.data ?? []);
-const stats = computed(() => statsRes.value ?? { balades: 0, chemins: 0 });
+const actualites = computed(() => home.value?.actualites ?? []);
+const stats = computed(() => ({
+  balades: home.value?.totalBalades ?? 0,
+  chemins: home.value?.totalChemins ?? 0,
+}));
 
-const niveaux = computed(() => [
-  {
-    key: 'famille',
-    label: 'Famille',
-    desc: 'Boucles courtes, pentes douces, idéales pour découvrir le Morvan en famille.',
-    balade: famillesRes.value?.data?.[0],
-    fallback:
-      'https://images.unsplash.com/photo-1544191696-15693072e0b5?auto=format&fit=crop&w=1200&q=70',
-  },
-  {
-    key: 'intermediaire',
-    label: 'Intermédiaire',
-    desc: 'Des boucles plus longues avec un peu de dénivelé pour les habitués.',
-    balade: interRes.value?.data?.[0],
-    fallback:
-      'https://images.unsplash.com/photo-1502209524164-acea936639a2?auto=format&fit=crop&w=1200&q=70',
-  },
-  {
-    key: 'expert',
-    label: 'Expert',
-    desc: 'Les itinéraires les plus engagés : longueur, dénivelé, technique.',
-    balade: expertRes.value?.data?.[0],
-    fallback:
-      'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=70',
-  },
-]);
+// Vitrine : 1ʳᵉ balade publiée pour chaque niveau, depuis la liste déjà chargée.
+const FALLBACKS: Record<Difficulte, string> = {
+  famille:
+    'https://images.unsplash.com/photo-1544191696-15693072e0b5?auto=format&fit=crop&w=1200&q=70',
+  intermediaire:
+    'https://images.unsplash.com/photo-1502209524164-acea936639a2?auto=format&fit=crop&w=1200&q=70',
+  expert:
+    'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=70',
+};
 
-const { mediaUrl } = useStrapi();
+const niveaux = computed(() =>
+  (['famille', 'intermediaire', 'expert'] as const).map((key) => {
+    const balade = home.value?.balades.find((b) => b.difficulte === key);
+    return {
+      key,
+      label: difficulteLabel(key),
+      desc: difficulteDesc(key),
+      balade,
+      fallback: FALLBACKS[key],
+    };
+  }),
+);
 
 function imgFor(n: { balade?: Balade; fallback: string }) {
   if (n.balade?.photo_mise_en_avant) return mediaUrl(n.balade.photo_mise_en_avant);
@@ -111,7 +85,7 @@ useSeoMeta({
         <p class="uppercase tracking-[0.2em] text-xs md:text-sm text-cream/80 mb-6">
           Cussy-en-Morvan · Bourgogne
         </p>
-        <h1 class="!text-cream font-serif text-5xl md:text-7xl leading-[1.05] mb-6">
+        <h1 class="text-cream font-serif text-5xl md:text-7xl leading-[1.05] mb-6">
           Le VTT au cœur<br />
           du Morvan.
         </h1>
@@ -121,12 +95,7 @@ useSeoMeta({
         </p>
         <div class="flex flex-wrap gap-3">
           <NuxtLink to="/balades" class="btn-primary">Voir les balades</NuxtLink>
-          <NuxtLink
-            to="/chemins"
-            class="btn !bg-transparent !text-cream border border-cream/60 hover:!bg-cream hover:!text-ink"
-          >
-            État des chemins
-          </NuxtLink>
+          <NuxtLink to="/chemins" class="btn-outline-cream"> État des chemins </NuxtLink>
         </div>
       </div>
     </section>
@@ -182,7 +151,7 @@ useSeoMeta({
             ></div>
             <div class="flex flex-col h-full justify-end p-6 text-cream">
               <p class="uppercase tracking-[0.2em] text-xs text-cream/70 mb-2">Niveau</p>
-              <h3 class="!text-cream font-serif text-3xl mb-2">{{ n.label }}</h3>
+              <h3 class="text-cream font-serif text-3xl mb-2">{{ n.label }}</h3>
               <p class="text-cream/85 text-sm mb-4">{{ n.desc }}</p>
               <span class="text-sm font-medium text-cream group-hover:underline">
                 Découvrir →
@@ -239,7 +208,7 @@ useSeoMeta({
     <!-- CTA final -->
     <section class="bg-foret-dark text-cream">
       <div class="container-page py-20 md:py-28 text-center max-w-3xl">
-        <h2 class="!text-cream font-serif text-4xl md:text-5xl mb-6">
+        <h2 class="text-cream font-serif text-4xl md:text-5xl mb-6">
           Prêt à enfourcher votre VTT ?
         </h2>
         <p class="text-cream/85 text-lg mb-10">
@@ -247,12 +216,7 @@ useSeoMeta({
         </p>
         <div class="flex flex-wrap gap-3 justify-center">
           <NuxtLink to="/balades" class="btn-primary">Toutes les balades</NuxtLink>
-          <NuxtLink
-            to="/chemins"
-            class="btn !bg-transparent !text-cream border border-cream/60 hover:!bg-cream hover:!text-ink"
-          >
-            Voir l'état des chemins
-          </NuxtLink>
+          <NuxtLink to="/chemins" class="btn-outline-cream"> Voir l'état des chemins </NuxtLink>
         </div>
       </div>
     </section>
