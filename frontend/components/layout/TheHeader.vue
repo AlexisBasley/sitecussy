@@ -29,7 +29,7 @@ const links = [
         <img
           src="/logo-cussy.png"
           alt="Cussy-en-Morvan"
-          class="h-10 md:h-14 w-28 md:w-36 object-cover object-left bg-cream rounded-lg"
+          class="h-9 md:h-12 w-auto bg-cream rounded-md px-2 py-1"
         />
       </NuxtLink>
 

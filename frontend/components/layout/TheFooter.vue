@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
           <img
             src="/logo-cussy.png"
             alt="Cussy-en-Morvan"
-            class="h-12 w-32 object-cover object-left bg-cream rounded-lg"
+            class="h-10 w-auto bg-cream rounded-md px-2 py-1"
           />
         </NuxtLink>
         <p class="text-sm leading-relaxed max-w-xs">
