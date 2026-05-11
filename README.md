@@ -21,6 +21,47 @@ Lecture libre pour tous les visiteurs. Contenu géré via le backoffice Strapi (
 
 ---
 
+## Architecture
+
+```mermaid
+graph TB
+    User([Visiteur])
+
+    subgraph Vercel["Vercel (Hobby)"]
+        Nuxt["Nuxt 3 + Vue 3<br/>Tailwind + Leaflet<br/>SSR + cache Nitro"]
+        Proxy["/api/geotrek/*<br/>/api/gpx/*"]
+    end
+
+    subgraph Railway["Railway"]
+        Strapi["Strapi v5<br/>REST API"]
+        Postgres[(PostgreSQL)]
+    end
+
+    Cloudinary["Cloudinary<br/>(médias)"]
+    Geotrek["API Geotrek<br/>PNR Morvan<br/>(1604 POIs)"]
+    IGN["IGN data.geopf.fr<br/>(tuiles carto)"]
+    OSM["OpenStreetMap<br/>(tuiles)"]
+
+    User -->|HTTPS| Nuxt
+    Nuxt --> Proxy
+    Nuxt -->|fetch CMS| Strapi
+    Strapi --> Postgres
+    Strapi -.->|upload| Cloudinary
+    Nuxt -.->|images| Cloudinary
+    Proxy -->|cache 1h| Geotrek
+    User -->|tuiles directes| IGN
+    User -->|tuiles directes| OSM
+
+    classDef vercel fill:#000,color:#fff,stroke:#000
+    classDef railway fill:#0b0d0e,color:#9ca3af,stroke:#374151
+    classDef ext fill:#f0ebe2,color:#1a2e22,stroke:#2f4a3a
+    class Nuxt,Proxy vercel
+    class Strapi,Postgres railway
+    class Cloudinary,Geotrek,IGN,OSM ext
+```
+
+---
+
 ## Démarrage local
 
 ### 1. Backend Strapi
