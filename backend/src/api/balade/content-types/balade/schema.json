@@ -52,6 +52,24 @@
       "relation": "manyToMany",
       "target": "api::chemin.chemin",
       "inversedBy": "balades"
+    },
+    "locomotion": {
+      "type": "json",
+      "required": false
+    },
+    "type_parcours": {
+      "type": "enumeration",
+      "enum": ["boucle", "hameaux", "aller_retour", "libre"]
+    },
+    "duree_minutes": {
+      "type": "integer",
+      "min": 0
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
+      "inversedBy": "balades"
     }
   }
 }
