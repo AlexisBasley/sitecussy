@@ -1,71 +1,47 @@
 <script setup lang="ts">
-import type { Actualite } from '~/types/actualite';
-import type { Balade, Difficulte } from '~/types/balade';
+import type { Evenement } from '~/types/evenement';
+import type { Balade } from '~/types/balade';
 
-const { findMany, mediaUrl } = useStrapi();
-const { description: difficulteDesc, label: difficulteLabel } = useDifficulte();
+const { findMany } = useStrapi();
 
-// 1 seule passe : Promise.all pour paralléliser actus + balades + count chemins.
+const now = new Date().toISOString();
+
 const { data: home } = await useAsyncData('home', async () => {
-  const [actus, balades, chemins] = await Promise.all([
-    findMany<Actualite>('actualites', {
-      populate: ['image', 'balade'],
-      sort: ['date:desc'],
+  const [upcoming, recent, balades, chemins] = await Promise.all([
+    findMany<Evenement>('evenements', {
+      populate: ['image_couverture', 'balade', 'balade.photo_mise_en_avant'],
+      filters: { date_debut: { $gte: now } },
+      sort: ['date_debut:asc'],
       pagination: { pageSize: 3 },
     }),
-    findMany<Balade>('balades', {
-      populate: ['photo_mise_en_avant'],
-      sort: ['publishedAt:desc'],
-      pagination: { pageSize: 50 },
+    findMany<Evenement>('evenements', {
+      populate: ['image_couverture', 'balade', 'balade.photo_mise_en_avant'],
+      filters: { date_debut: { $lt: now } },
+      sort: ['date_debut:desc'],
+      pagination: { pageSize: 3 },
     }),
+    findMany<Balade>('balades', { pagination: { pageSize: 1 } }),
     findMany<{ id: number }>('chemins', { pagination: { pageSize: 1 } }),
   ]);
   return {
-    actualites: actus.data ?? [],
-    balades: balades.data ?? [],
+    upcoming: upcoming.data ?? [],
+    recent: recent.data ?? [],
     totalBalades: balades.meta?.pagination?.total ?? 0,
     totalChemins: chemins.meta?.pagination?.total ?? 0,
   };
 });
 
-const actualites = computed(() => home.value?.actualites ?? []);
+const upcoming = computed(() => home.value?.upcoming ?? []);
+const recent = computed(() => home.value?.recent ?? []);
 const stats = computed(() => ({
   balades: home.value?.totalBalades ?? 0,
   chemins: home.value?.totalChemins ?? 0,
 }));
 
-// Vitrine : 1ʳᵉ balade publiée pour chaque niveau, depuis la liste déjà chargée.
-const FALLBACKS: Record<Difficulte, string> = {
-  famille:
-    'https://images.unsplash.com/photo-1544191696-15693072e0b5?auto=format&fit=crop&w=1200&q=70',
-  intermediaire:
-    'https://images.unsplash.com/photo-1502209524164-acea936639a2?auto=format&fit=crop&w=1200&q=70',
-  expert:
-    'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=70',
-};
-
-const niveaux = computed(() =>
-  (['famille', 'intermediaire', 'expert'] as const).map((key) => {
-    const balade = home.value?.balades.find((b) => b.difficulte === key);
-    return {
-      key,
-      label: difficulteLabel(key),
-      desc: difficulteDesc(key),
-      balade,
-      fallback: FALLBACKS[key],
-    };
-  }),
-);
-
-function imgFor(n: { balade?: Balade; fallback: string }) {
-  if (n.balade?.photo_mise_en_avant) return mediaUrl(n.balade.photo_mise_en_avant);
-  return n.fallback;
-}
-
 useSeoMeta({
-  title: 'VTT à Cussy-en-Morvan — Balades, chemins et actualités',
+  title: 'Cussy-en-Morvan — Randos, événements et vie locale',
   description:
-    'Découvrez les balades VTT au cœur du Morvan : itinéraires famille, intermédiaire et expert, état des chemins, fichiers GPX à télécharger.',
+    "Site de Cussy-en-Morvan : randonnées (VTT, marche, cheval), événements de l'association et patrimoine du Morvan.",
 });
 </script>
 
@@ -86,32 +62,48 @@ useSeoMeta({
           Cussy-en-Morvan · Bourgogne
         </p>
         <h1 class="text-cream font-serif text-5xl md:text-7xl leading-[1.05] mb-6">
-          Le VTT au cœur<br />
-          du Morvan.
+          La vie du village,<br />
+          au cœur du Morvan.
         </h1>
         <p class="text-lg md:text-xl text-cream/85 max-w-2xl mb-10">
-          Des chemins forestiers, des boucles balisées et des paysages préservés. Choisissez votre
-          balade, téléchargez la trace GPX et partez.
+          Randos en VTT, à pied ou à cheval, événements de l'association et patrimoine du Morvan —
+          tout ce qui se passe à Cussy.
         </p>
         <div class="flex flex-wrap gap-3">
-          <NuxtLink to="/balades" class="btn-primary">Voir les balades</NuxtLink>
-          <NuxtLink to="/chemins" class="btn-outline-cream"> État des chemins </NuxtLink>
+          <NuxtLink to="/evenements" class="btn-primary">Prochains événements</NuxtLink>
+          <NuxtLink to="/balades" class="btn-outline-cream">Toutes les randos</NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prochains événements -->
+    <section v-if="upcoming.length" class="section">
+      <div class="container-page">
+        <div class="flex items-end justify-between mb-10 flex-wrap gap-4">
+          <div>
+            <p class="uppercase tracking-[0.2em] text-xs text-foret mb-3">À venir</p>
+            <h2 class="text-4xl md:text-5xl">Les prochains rendez-vous.</h2>
+          </div>
+          <NuxtLink to="/evenements" class="btn-ghost">Tous les événements →</NuxtLink>
+        </div>
+        <div class="grid gap-6 md:grid-cols-3">
+          <EvenementCard v-for="e in upcoming" :key="e.id" :evenement="e" />
         </div>
       </div>
     </section>
 
     <!-- Stats -->
-    <section class="border-b border-stone-200 bg-cream">
+    <section class="border-y border-stone-200 bg-cream-dark">
       <div class="container-page py-10 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
         <div>
           <div class="font-serif text-4xl md:text-5xl text-foret-dark">{{ stats.balades }}</div>
-          <div class="uppercase tracking-wider text-xs text-stone-600 mt-1">Balades publiées</div>
+          <div class="uppercase tracking-wider text-xs text-stone-600 mt-1">
+            Randos cartographiées
+          </div>
         </div>
         <div>
           <div class="font-serif text-4xl md:text-5xl text-foret-dark">{{ stats.chemins }}</div>
-          <div class="uppercase tracking-wider text-xs text-stone-600 mt-1">
-            Chemins cartographiés
-          </div>
+          <div class="uppercase tracking-wider text-xs text-stone-600 mt-1">Chemins balisés</div>
         </div>
         <div class="col-span-2 md:col-span-1">
           <div class="font-serif text-4xl md:text-5xl text-foret-dark">901 m</div>
@@ -122,63 +114,22 @@ useSeoMeta({
       </div>
     </section>
 
-    <!-- Choisir sa balade -->
-    <section class="section">
-      <div class="container-page">
-        <div class="max-w-2xl mb-12">
-          <p class="uppercase tracking-[0.2em] text-xs text-foret mb-3">Choisir sa balade</p>
-          <h2 class="text-4xl md:text-5xl mb-4">Trois niveaux, un seul terrain de jeu.</h2>
-          <p class="text-stone-600 text-lg">
-            Que vous rouliez en famille ou que vous cherchiez un parcours engagé, le Morvan a sa
-            boucle pour vous.
-          </p>
-        </div>
-        <div class="grid gap-6 md:grid-cols-3">
-          <NuxtLink
-            v-for="n in niveaux"
-            :key="n.key"
-            :to="n.balade ? `/balades/${n.balade.slug}` : `/balades?difficulte=${n.key}`"
-            class="group relative isolate overflow-hidden rounded-2xl aspect-[3/4] no-underline"
-          >
-            <img
-              :src="imgFor(n)"
-              :alt="n.label"
-              class="absolute inset-0 -z-10 w-full h-full object-cover transition duration-500 group-hover:scale-105"
-              loading="lazy"
-            />
-            <div
-              class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent"
-            ></div>
-            <div class="flex flex-col h-full justify-end p-6 text-cream">
-              <p class="uppercase tracking-[0.2em] text-xs text-cream/70 mb-2">Niveau</p>
-              <h3 class="text-cream font-serif text-3xl mb-2">{{ n.label }}</h3>
-              <p class="text-cream/85 text-sm mb-4">{{ n.desc }}</p>
-              <span class="text-sm font-medium text-cream group-hover:underline">
-                Découvrir →
-              </span>
-            </div>
-          </NuxtLink>
-        </div>
-      </div>
-    </section>
-
-    <!-- Actualités -->
-    <section v-if="actualites.length" class="section bg-stone-50">
+    <!-- Derniers événements passés -->
+    <section v-if="recent.length" class="section bg-stone-50">
       <div class="container-page">
         <div class="flex items-end justify-between mb-10 flex-wrap gap-4">
           <div>
-            <p class="uppercase tracking-[0.2em] text-xs text-foret mb-3">Actualités</p>
-            <h2 class="text-4xl md:text-5xl">Sur les chemins, en ce moment.</h2>
+            <p class="uppercase tracking-[0.2em] text-xs text-foret mb-3">Précédents</p>
+            <h2 class="text-4xl md:text-5xl">Ce qu'on a fait récemment.</h2>
           </div>
-          <NuxtLink to="/actualites" class="btn-ghost">Toutes les actus →</NuxtLink>
         </div>
         <div class="grid gap-6 md:grid-cols-3">
-          <ActualiteCard v-for="a in actualites" :key="a.id" :actualite="a" />
+          <EvenementCard v-for="e in recent" :key="e.id" :evenement="e" />
         </div>
       </div>
     </section>
 
-    <!-- À propos de Cussy -->
+    <!-- À propos -->
     <section class="section">
       <div class="container-page grid md:grid-cols-2 gap-12 items-center">
         <div class="aspect-[4/3] rounded-2xl overflow-hidden">
@@ -197,10 +148,10 @@ useSeoMeta({
             Parc naturel régional du Morvan : forêts profondes, étangs, hameaux préservés.
           </p>
           <p class="text-stone-700 text-lg leading-relaxed mb-8">
-            Les itinéraires VTT proposés ici sont réalisés en partenariat avec le PNR du Morvan, qui
+            Les randonnées proposées ici sont réalisées en partenariat avec le PNR du Morvan, qui
             entretient et balise plus de 1 000 km de circuits.
           </p>
-          <NuxtLink to="/about" class="btn-secondary">En savoir plus</NuxtLink>
+          <NuxtLink to="/qui-sommes-nous" class="btn-secondary">En savoir plus</NuxtLink>
         </div>
       </div>
     </section>
@@ -209,14 +160,14 @@ useSeoMeta({
     <section class="bg-foret-dark text-cream">
       <div class="container-page py-20 md:py-28 text-center max-w-3xl">
         <h2 class="text-cream font-serif text-4xl md:text-5xl mb-6">
-          Prêt à enfourcher votre VTT ?
+          Rejoignez-nous sur les chemins.
         </h2>
         <p class="text-cream/85 text-lg mb-10">
-          Toutes les balades, leurs traces GPX et l'état des chemins en temps réel.
+          Toutes les randos, les prochains événements et l'état des sentiers à Cussy-en-Morvan.
         </p>
         <div class="flex flex-wrap gap-3 justify-center">
-          <NuxtLink to="/balades" class="btn-primary">Toutes les balades</NuxtLink>
-          <NuxtLink to="/chemins" class="btn-outline-cream"> Voir l'état des chemins </NuxtLink>
+          <NuxtLink to="/evenements" class="btn-primary">Voir les événements</NuxtLink>
+          <NuxtLink to="/balades" class="btn-outline-cream">Toutes les randos</NuxtLink>
         </div>
       </div>
     </section>
