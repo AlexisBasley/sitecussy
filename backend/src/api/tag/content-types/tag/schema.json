@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tags",
+  "info": {
+    "singularName": "tag",
+    "pluralName": "tags",
+    "displayName": "Tag",
+    "description": "Tag réutilisable sur les balades (ex: forêt, panoramique, famille)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nom": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "nom",
+      "required": true
+    },
+    "couleur": {
+      "type": "string",
+      "regex": "^#[0-9a-fA-F]{6}$"
+    },
+    "balades": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::balade.balade",
+      "mappedBy": "tags"
+    }
+  }
+}
