@@ -429,18 +429,30 @@ export interface ApiBaladeBalade extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Required;
     duree_estimee: Schema.Attribute.String & Schema.Attribute.Required;
+    duree_minutes: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::balade.balade'
     > &
       Schema.Attribute.Private;
+    locomotion: Schema.Attribute.JSON;
     photo_mise_en_avant: Schema.Attribute.Media<'images'> &
       Schema.Attribute.Required;
     point_depart: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'titre'> & Schema.Attribute.Required;
+    tags: Schema.Attribute.Relation<'manyToMany', 'api::tag.tag'>;
     titre: Schema.Attribute.String & Schema.Attribute.Required;
+    type_parcours: Schema.Attribute.Enumeration<
+      ['boucle', 'hameaux', 'aller_retour', 'libre']
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -495,6 +507,74 @@ export interface ApiCheminChemin extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'ouvert'>;
     type_surface: Schema.Attribute.Enumeration<['foret', 'piste', 'route']> &
       Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiEvenementEvenement extends Struct.CollectionTypeSchema {
+  collectionName: 'evenements';
+  info: {
+    description: "\u00C9v\u00E9nement de l'association (rando organis\u00E9e, manifestation, AG, etc.)";
+    displayName: '\u00C9v\u00E9nement';
+    pluralName: 'evenements';
+    singularName: 'evenement';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    balade: Schema.Attribute.Relation<'manyToOne', 'api::balade.balade'>;
+    contenu: Schema.Attribute.RichText & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date_debut: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    date_fin: Schema.Attribute.DateTime;
+    flyer: Schema.Attribute.Media<'images' | 'files'>;
+    image_couverture: Schema.Attribute.Media<'images'>;
+    lieu: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::evenement.evenement'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'titre'> & Schema.Attribute.Required;
+    titre: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTagTag extends Struct.CollectionTypeSchema {
+  collectionName: 'tags';
+  info: {
+    description: 'Tag r\u00E9utilisable sur les balades (ex: for\u00EAt, panoramique, famille)';
+    displayName: 'Tag';
+    pluralName: 'tags';
+    singularName: 'tag';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    balades: Schema.Attribute.Relation<'manyToMany', 'api::balade.balade'>;
+    couleur: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::tag.tag'> &
+      Schema.Attribute.Private;
+    nom: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'nom'> & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1013,6 +1093,8 @@ declare module '@strapi/strapi' {
       'api::actualite.actualite': ApiActualiteActualite;
       'api::balade.balade': ApiBaladeBalade;
       'api::chemin.chemin': ApiCheminChemin;
+      'api::evenement.evenement': ApiEvenementEvenement;
+      'api::tag.tag': ApiTagTag;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

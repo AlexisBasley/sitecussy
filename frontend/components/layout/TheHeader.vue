@@ -11,11 +11,11 @@ watch(
 );
 
 const links = [
-  { to: '/balades', label: 'Balades' },
+  { to: '/balades', label: 'Randos' },
   { to: '/chemins', label: 'Chemins' },
   { to: '/patrimoine', label: 'Patrimoine' },
-  { to: '/actualites', label: 'Actualités' },
-  { to: '/a-propos', label: 'À propos' },
+  { to: '/evenements', label: 'Événements' },
+  { to: '/qui-sommes-nous', label: 'Qui sommes-nous' },
 ];
 </script>
 

@@ -46,6 +46,7 @@ export default defineNuxtConfig({
   nitro: {
     routeRules: {
       '/api/gpx/**': { cache: { maxAge: 60 * 60 } },
+      '/a-propos': { redirect: { to: '/qui-sommes-nous', statusCode: 301 } },
     },
   },
 

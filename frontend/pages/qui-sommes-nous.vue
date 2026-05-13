@@ -1,8 +1,8 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'À propos — VTT Cussy-en-Morvan',
+  title: 'Qui sommes-nous — Cussy-en-Morvan',
   description:
-    'Site informatif des balades VTT à Cussy-en-Morvan, animé par la mairie et des bénévoles. Pratique responsable et contact.',
+    'Association et bénévoles de Cussy-en-Morvan : randonnées, vie associative et événements au cœur du Morvan.',
 });
 </script>
 
