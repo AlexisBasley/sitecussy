@@ -23,8 +23,8 @@ const navLinks = [
           />
         </NuxtLink>
         <p class="text-sm leading-relaxed max-w-xs">
-          Site informatif des balades VTT au départ de Cussy-en-Morvan, au cœur du Parc naturel
-          régional du Morvan.
+          La vie du village de Cussy-en-Morvan : événements de l'association, randonnées et
+          patrimoine au cœur du Parc naturel régional du Morvan.
         </p>
       </div>
 
@@ -42,7 +42,16 @@ const navLinks = [
 
       <!-- Contact / partenaires -->
       <div>
-        <h4 class="text-cream mb-4 text-sm font-semibold uppercase tracking-wider">Mairie</h4>
+        <h4 class="text-cream mb-4 text-sm font-semibold uppercase tracking-wider">
+          Contactez-nous
+        </h4>
+        <a
+          href="mailto:contact@cussy-en-morvan.fr"
+          class="text-cream/80 hover:text-cream text-sm transition-colors inline-block mb-6 break-all"
+        >
+          contact@cussy-en-morvan.fr
+        </a>
+        <h4 class="text-cream mb-3 text-sm font-semibold uppercase tracking-wider">Mairie</h4>
         <address class="not-italic text-sm leading-relaxed mb-6">
           Mairie de Cussy-en-Morvan<br />
           71550 Cussy-en-Morvan<br />
@@ -67,7 +76,7 @@ const navLinks = [
         class="container-page py-5 flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-cream/60"
       >
         <p>© {{ year }} Mairie de Cussy-en-Morvan</p>
-        <p>Pratiquez le VTT en respectant la nature et la propriété privée.</p>
+        <p>Profitez du Morvan en respectant la nature et la propriété privée.</p>
       </div>
     </div>
   </footer>
