@@ -1,0 +1,16 @@
+node_modules
+.nuxt
+.output
+.git
+.gitignore
+.env
+.env.*
+*.log
+README.md
+Dockerfile
+.dockerignore
+.vscode
+.idea
+.DS_Store
+coverage
+dist
