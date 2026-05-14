@@ -18,6 +18,7 @@ const props = defineProps<{
 }>();
 
 const { fetchAndParse } = useGpx();
+const { safeStrict } = useSanitize();
 
 const couleur = computed(() => {
   switch (props.difficulte) {
@@ -190,7 +191,7 @@ const center = computed<[number, number]>(() => {
             <div
               v-if="poi.description.fr"
               class="mt-1 text-stone-700 line-clamp-4"
-              v-html="poi.description.fr"
+              v-html="safeStrict(poi.description.fr)"
             />
           </div>
         </LPopup>

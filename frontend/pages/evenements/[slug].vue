@@ -5,6 +5,7 @@ const route = useRoute();
 const slug = route.params.slug as string;
 
 const { findFirst, mediaUrl } = useStrapi();
+const { safe } = useSanitize();
 
 const { data: evenement } = await useAsyncData(`evenement-${slug}`, () =>
   findFirst<Evenement>('evenements', {
@@ -118,7 +119,7 @@ const cover = computed(() => e.image_couverture ?? e.balade?.photo_mise_en_avant
 
     <!-- Contenu + flyer -->
     <section class="container-page py-12 grid gap-10 lg:grid-cols-[1fr_320px]">
-      <article class="prose-strapi" v-html="e.contenu" />
+      <article class="prose-strapi" v-html="safe(e.contenu)" />
 
       <aside v-if="e.flyer" class="space-y-3">
         <h3 class="text-base font-semibold m-0">Flyer</h3>

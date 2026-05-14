@@ -3,6 +3,7 @@ import type { Actualite } from '~/types/actualite';
 
 const props = defineProps<{ actualite: Actualite }>();
 const { mediaUrl } = useStrapi();
+const { safe } = useSanitize();
 
 const categorieMeta: Record<Actualite['categorie'], { label: string; cls: string }> = {
   info: { label: 'Info', cls: 'bg-blue-100 text-blue-800' },
@@ -40,7 +41,7 @@ const dateFmt = computed(() =>
         <time class="text-stone-500">{{ dateFmt }}</time>
       </div>
       <h3 class="text-foret-dark mb-2">{{ actualite.titre }}</h3>
-      <div class="prose-strapi text-sm text-stone-700" v-html="actualite.contenu" />
+      <div class="prose-strapi text-sm text-stone-700" v-html="safe(actualite.contenu)" />
       <NuxtLink
         v-if="actualite.balade?.slug"
         :to="`/balades/${actualite.balade.slug}`"

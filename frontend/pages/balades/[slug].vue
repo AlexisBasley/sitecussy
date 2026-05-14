@@ -6,6 +6,7 @@ const slug = route.params.slug as string;
 
 const { findFirst, mediaUrl } = useStrapi();
 const { label: difficulteLabel, badge: difficulteBadge } = useDifficulte();
+const { safe } = useSanitize();
 
 const { data: balade } = await useAsyncData(`balade-${slug}`, () =>
   findFirst<Balade>('balades', {
@@ -111,11 +112,11 @@ useSeoMeta({
         </dl>
       </header>
 
-      <!-- Description -->
+      <!-- Description (sanitis\u00e9 via useSanitize().safe) -->
       <section
         v-if="balade.description"
         class="prose-strapi mb-12 text-lg"
-        v-html="balade.description"
+        v-html="safe(balade.description)"
       />
 
       <!-- Carte + GPX -->

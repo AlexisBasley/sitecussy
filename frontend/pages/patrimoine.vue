@@ -10,6 +10,8 @@ useSeoMeta({
     "Découvrez les points d'intérêt patrimoniaux du Parc naturel régional du Morvan : édifices, paysages, faune, flore, archéologie.",
 });
 
+const { safeStrict } = useSanitize();
+
 interface Poi {
   id: number;
   name: { fr: string | null };
@@ -121,7 +123,7 @@ function renderMarkers() {
       `<div style="max-width:18rem;font-size:0.875rem">
         <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:#78716c">${escapeHtml(typeLabel)}</div>
         <div style="font-weight:600;color:#0a0e0a;margin-top:0.125rem">${escapeHtml(name)}</div>
-        ${desc ? `<div style="margin-top:0.25rem;color:#44403c">${desc}</div>` : ''}
+        ${desc ? `<div style="margin-top:0.25rem;color:#44403c">${safeStrict(desc)}</div>` : ''}
       </div>`,
     );
     marker.addTo(layerGroup);
