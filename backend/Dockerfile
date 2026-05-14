@@ -31,8 +31,9 @@ FROM node:22-alpine AS runtime
 
 WORKDIR /app
 
-# vips est requis par sharp \u00e0 l'ex\u00e9cution si Strapi traite des images localement.
-RUN apk add --no-cache vips dumb-init
+# vips + vips-cpp sont requis par sharp \u00e0 l'ex\u00e9cution. Le binaire natif sharp
+# compil\u00e9 dans le builder est li\u00e9 dynamiquement \u00e0 libvips-cpp.so.42.
+RUN apk add --no-cache vips vips-cpp dumb-init
 
 # User non-root
 RUN addgroup -S strapi && adduser -S strapi -G strapi
