@@ -6,7 +6,7 @@ const { findMany } = useStrapi();
 
 const now = new Date().toISOString();
 
-const { data: home } = await useAsyncData('home', async () => {
+const { data: home, error } = await useAsyncData('home', async () => {
   const [upcoming, recent, balades, chemins] = await Promise.all([
     findMany<Evenement>('evenements', {
       populate: ['image_couverture', 'balade', 'balade.photo_mise_en_avant'],
@@ -75,6 +75,14 @@ useSeoMeta({
         </div>
       </div>
     </section>
+
+    <!-- Erreur de chargement -->
+    <div v-if="error" class="bg-amber-50 border-y border-amber-200">
+      <div class="container-page py-4 text-sm text-amber-900">
+        Les contenus n'ont pas pu \u00eatre charg\u00e9s pour le moment. Merci de r\u00e9essayer
+        plus tard.
+      </div>
+    </div>
 
     <!-- Prochains événements -->
     <section v-if="upcoming.length" class="section">

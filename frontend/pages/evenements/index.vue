@@ -9,7 +9,7 @@ useSeoMeta({
 
 const { findMany } = useStrapi();
 
-const { data: res } = await useAsyncData('evenements-list', () =>
+const { data: res, error } = await useAsyncData('evenements-list', () =>
   findMany<Evenement>('evenements', {
     populate: ['image_couverture', 'flyer', 'balade', 'balade.photo_mise_en_avant'],
     sort: ['date_debut:desc'],
@@ -38,6 +38,13 @@ const past = computed(() => evenements.value.filter((e) => new Date(e.date_debut
     </section>
 
     <section class="container-page py-12">
+      <div
+        v-if="error"
+        class="mb-8 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+      >
+        Les \u00e9v\u00e9nements n'ont pas pu \u00eatre charg\u00e9s. R\u00e9essayez plus tard.
+      </div>
+
       <template v-if="upcoming.length">
         <h2 class="mb-6">À venir</h2>
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
