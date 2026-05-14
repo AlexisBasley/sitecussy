@@ -6,15 +6,28 @@ const router = useRouter();
 const { findMany } = useStrapi();
 const { label, all: difficultes } = useDifficulte();
 
-const { data: res } = await useAsyncData('balades-list', () =>
+const { data: res, error } = await useAsyncData('balades-list', () =>
   findMany<Balade>('balades', {
     populate: ['photo_mise_en_avant', 'tags'],
     sort: ['titre:asc'],
-    pagination: { pageSize: 100 },
+    pagination: { pageSize: 200 },
   }),
 );
 
 const allBalades = computed(() => res.value?.data ?? []);
+
+// Garde-fou : si on d\u00e9passe la pageSize, des balades sont silencieusement absentes.
+// TODO: paginer pour de vrai si total > 200.
+if (import.meta.dev) {
+  watchEffect(() => {
+    const total = res.value?.meta?.pagination?.total ?? 0;
+    if (total > 200) {
+      console.warn(
+        `[balades] ${total} balades en base mais seules 200 sont affich\u00e9es. Paginer.`,
+      );
+    }
+  });
+}
 
 // === Filtres ===
 const locomotions: { value: Locomotion; label: string; icon: string }[] = [
@@ -230,6 +243,13 @@ useSeoMeta({
           Réinitialiser les filtres
         </button>
       </div>
+    </div>
+
+    <div
+      v-if="error"
+      class="mb-8 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+    >
+      Les randos n'ont pas pu \u00eatre charg\u00e9es. R\u00e9essayez plus tard.
     </div>
 
     <p v-if="!balades.length" class="text-stone-600">Aucune rando ne correspond à ces filtres.</p>
